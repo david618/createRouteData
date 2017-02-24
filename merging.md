@@ -14,8 +14,8 @@ Start with routes in various start positions not always at beginning, but somewh
 - 120,000/s = 720,000
 
 10 min 
-- 2.4
-- 4.8
+- 2.4 million
+- 4.8 million
 - 7.2 million
 
 Input: 37,181 files with run times from 0 to n seconds.
@@ -29,3 +29,7 @@ Generate with varing speeds from 200 to 300; and intervals from 0.5 to 1.5 secon
 Picked 10,000 routes
 - Start each route at a random time on the route at least duration milliseconds before end
 - Merge the data with master adding master start time
+
+This Open Office [Calc Spreadsheet](./Samples.ods) was used to estimate the size of the simulation files.
+
+For a simulation with 10,000/s and 40 bytes/sample; 5 minute simulation would be 114MB.  

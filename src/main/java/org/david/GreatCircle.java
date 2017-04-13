@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import jdk.jfr.events.FileWriteEvent;
 import org.apache.log4j.Category;
 
 /**
@@ -985,7 +984,8 @@ public class GreatCircle {
                             ok = false;
                         }
 
-                        String filename = sourceAirport + "-" + destinationAirport + ".txt";
+                        
+                        String filename = "routes" + System.getProperty("file.separator") + sourceAirport + "-" + destinationAirport + ".txt";
                         System.out.println(i + "," + filename + "," + lon1 + "," + lat1 + "," + lon2 + "," + lat2);
                         
                         
@@ -1018,7 +1018,7 @@ public class GreatCircle {
         //String pts = gc.getPoints(-90.370028, 38.748697, -112.011583, 33.434278, 250.0, 60);
 
         //System.out.println(pts);
-        gc.routes(null);
+        gc.routes("STL");
 
 //        String line = "7S,\\N,RSH,7098,ANI,5967,,0,";
 //        

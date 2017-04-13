@@ -13,5 +13,5 @@ hs_err_pid*
 routes_1s/
 routes_10s/
 target/
-routes/
+/routes/*
 

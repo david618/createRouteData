@@ -204,7 +204,7 @@ public class CreateRoutes {
                 String dst = vals.get(10);
                 String tz = vals.get(11);
 
-                Airport arpt = new Airport(name, Double.parseDouble(lat), Double.parseDouble(lon));
+                Airport arpt = new Airport(Integer.parseInt(airportID), name, Double.parseDouble(lat), Double.parseDouble(lon));
 
                 airports.put(Integer.parseInt(airportID), arpt);
 
@@ -289,6 +289,6 @@ public class CreateRoutes {
 
     public static void main(String[] args) {
         CreateRoutes t = new CreateRoutes();
-        t.routes(null);
+        t.routes("ATL");
     }
 }

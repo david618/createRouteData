@@ -10,14 +10,26 @@ package org.jennings.route;
  * @author david
  */
 public class Airport {
+    private int id;
     private String name;
     private double lat;
     private double lon;
 
-    public Airport(String name, double lat, double lon) {
+    public Airport(int id, String name, double lat, double lon) {
+        this.id = id;
         this.name = name;
         this.lat = lat;
         this.lon = lon;
+    }
+
+
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
 

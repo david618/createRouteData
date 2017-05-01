@@ -1,5 +1,6 @@
 /**
- * 
+ * Not a accurate name; this has much more info than a Waypoint
+ * I have a position; time of departure, and the bearing and dist to next position 
  */
 package org.jennings.route;
 

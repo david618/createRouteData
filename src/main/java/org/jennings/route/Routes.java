@@ -1,7 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * 
+ * Routes is a collection of route objects
+ * 
+ * Support to save and load from file
+ * 
+ * 
+ * 
+ * David Jennings
  */
 package org.jennings.route;
 
@@ -26,7 +31,43 @@ public class Routes {
     ArrayList<Route> rts = new ArrayList<>();
     
     
-    public void loadRoutesFile(String filename) {
+    public Route get(int index) {
+        
+        Route rt = null;
+                
+        
+        try {
+            rt = rts.get(index);
+            
+        } catch (Exception e) {
+            
+        }
+        
+        return rt;
+        
+    }
+    
+    public void save(String filename) {
+        try {
+
+            JSONArray jsonRts = new JSONArray();
+            
+            for (Route rt: rts) {
+                jsonRts.put(rt);
+            }
+
+            FileWriter fw = new FileWriter(filename);
+
+            jsonRts.write(fw);
+            fw.close();
+        } catch (Exception e) {
+
+        }
+        
+        
+    }
+    
+    public void load(String filename) {
         try {
                         
             String text = new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
@@ -85,42 +126,11 @@ public class Routes {
 
     public static void main(String[] args) throws Exception {
         Routes t = new Routes();
-        //t.createRandomRouteFile("routesThreeDay10.json", 10, 86400*3);
-        t.loadRoutesFile("routesOneDay100.json");
+        t.createRandomRouteFile("routesOneDayUS10.json", 100, 86400);
+//        t.load("routesOneDay100.json");
+//        Route rt = t.get(0);
+//        System.out.println(rt);
 
-//        for (int i = 0; i< 10; i++) {
-//            Route rt = t.rts.get(i);        
-//            Thing thing = rt.getPosition();        
-//            System.out.println(thing);
-//            
-//        }
-        
-        Route rt = t.rts.get(4);        
-        long n = System.currentTimeMillis();
-        
-        FileWriter fw = new FileWriter("temp.txt");
-        
-        for (int i = 0; i <= rt.lastSec*2; i = i + 60) {
-            
-            Thing thing = rt.getPosition(n + i*1000);        
-            fw.write(thing.toString() + "\n");
-          
-        }
-        fw.close();
-
-
-//        while (true) {
-//            Route rt = t.rts.get(6);        
-//            Thing thing = rt.getPosition(System.currentTimeMillis() + 1400*1000);        
-//            System.out.println(thing);
-//            Thread.sleep(1000);            
-//        }
-        
-//        for (Route rt : t.rts) {
-//            System.out.println(rt.numWpts);
-//            System.out.println(rt);
-//        }
-        
     }
     
     

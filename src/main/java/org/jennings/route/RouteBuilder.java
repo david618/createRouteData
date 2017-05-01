@@ -19,6 +19,23 @@ public class RouteBuilder {
     Airports arpts = new Airports();
     GreatCircle gc = new GreatCircle();
 
+    /**
+     * Add a function that takes a set of locations and generates random speeds
+     * 
+     * I want to have vehicles on the same places, but running at different speeds 
+     * 
+     *
+     * 
+     */
+    
+    
+    /**
+     * This creates a route with random speeds
+     * 
+     * @param durationSec
+     * @return 
+     */
+    
     public Route createRoute(long durationSec) {
         
         Route rt = null;

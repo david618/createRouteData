@@ -17,14 +17,13 @@ import java.util.regex.Matcher;
  * @author david
  */
 public class Airports {
-    
+
     ArrayList<Airport> airports;
     int numAirports;
 
     public Airports() {
-        
+
         // Load Airports
-        
         FileReader fr = null;
         BufferedReader br = null;
         try {
@@ -62,72 +61,84 @@ public class Airports {
 
                 int id = Integer.parseInt(vals.get(0));
                 String name = vals.get(1);
+                String cntry = vals.get(3);
                 String lat = vals.get(6);
                 String lon = vals.get(7);
 
                 Airport arpt = new Airport(id, name, Double.parseDouble(lat), Double.parseDouble(lon));
 
+                // Country values have errors; Oryol Yuzhny Airport was listed in US actually it's in Russia
+//                if (cntry.equalsIgnoreCase("United States")) {
+//                    airports.add(arpt);
+//                }
+//                double dlon = Double.parseDouble(lon);
+//                double dlat = Double.parseDouble(lat);
+//
+//                if (dlon > -120 && dlon < -80) {
+//                    if (dlat > 20 && dlat < 60) {
+//                        airports.add(arpt);
+//                    }
+//                }
                 airports.add(arpt);
             }
-            
+
             numAirports = airports.size();
             //System.out.println(numAirports);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
     }
-    
+
     /**
      * Get a Random Airport that is not have the name provided
+     *
      * @param name
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     public Airport getRndAirport(String name) throws Exception {
         Random rnd = new Random();
-        
-        int i = rnd.nextInt(numAirports);        
+
+        int i = rnd.nextInt(numAirports);
         //System.out.println(i);
         Airport arpt = airports.get(i);
-                
+
         int numTries = 1;
         while (arpt.getName().equalsIgnoreCase(name)) {
             //System.out.println("HERE");
             numTries += 1;
-            i = rnd.nextInt(numAirports);        
-            arpt = airports.get(i);            
+            i = rnd.nextInt(numAirports);
+            arpt = airports.get(i);
             if (numTries > 10) {
                 throw new Exception("Having trouble finding a Random that doesn't match the value requested");
             }
         }
-        
+
         return arpt;
     }
-    
+
     public static void main(String[] args) {
-        
+
         Airports t = new Airports();
-        
+
 //        for (Airport arpt: t.airports) {
 //            System.out.println(arpt.getName());
 //        }
         try {
             String name = "";
-            for (int i=0; i<1000; i++) {                
+            for (int i = 0; i < 1000; i++) {
                 Airport arpt = t.getRndAirport(name);
                 name = arpt.getName();
                 System.out.println(name);
 
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
-        
+
     }
-    
-    
+
 }

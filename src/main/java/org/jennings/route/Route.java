@@ -23,9 +23,6 @@ package org.jennings.route;
 
 import java.util.ArrayList;
 import java.util.Random;
-import org.jennings.geomtools.DistanceBearing;
-import org.jennings.geomtools.GeographicCoordinate;
-import org.jennings.geomtools.GreatCircle;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

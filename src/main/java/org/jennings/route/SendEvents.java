@@ -1,6 +1,8 @@
 /**
  *
- *
+ * Create a set of Routes
+ * Create a set of Things on the Routes
+ * Send events for the things at a specified rate
  *
  *
  * David Jennings

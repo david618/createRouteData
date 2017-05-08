@@ -1,5 +1,5 @@
 /**
- * Thing Class
+ *  Thing has a route, id, and offset into route
  *
  * David Jennings
  */

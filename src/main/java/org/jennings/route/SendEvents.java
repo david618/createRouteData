@@ -15,6 +15,12 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.json.JSONObject;
 
 /**
  *
@@ -23,50 +29,80 @@ import java.util.TimerTask;
 public class SendEvents {
 
     static long numEventsSent;
-    
+
     final private int STDOUT = 0;
     final private int TCP = 1;
     final private int HTTP = 2;
-    
+
+    final private int TXT = 0;
+    final private int JSON = 1;
+
     final private int DURATIONSSECS = 86400;
+    final private int HTTPBATCH = 1000;
+    final private int SHOWCNTEVERY = 1000;
 
     Timer timer;
     int output;
+    int fmt;
 //    Routes rts;
     ArrayList<Thing> things = new ArrayList<>();
-    
-    
+
     private OutputStream os = null;
+
+    private final String USER_AGENT = "Mozilla/5.0";
+
+    private HttpClient httpClient;
+    private HttpPost httpPost;
 
     class CheckCount extends TimerTask {
 
         @Override
         public void run() {
-            
-            
-            
-            for (Thing t: things) {
-                
+
+            String postData = ""; // Combine lines and send in groups
+
+            for (Thing t : things) {
+
                 numEventsSent += 1;
                 t.setPosition(System.currentTimeMillis());
-                
+
                 String d = ",";
-                
-                String line = t.id + d + t.timestamp + d + t.speed + d +
-                        t.dist + d + t.bearing + d + t.rt.id + d +
-                        "\"" + t.location + "\"" + d + t.secsToDep + d +
-                        t.gc.getLon() + d + t.gc.getLat();
-                
+
+                String line = "";
+
+                switch (fmt) {
+                    case TXT:
+                        line = t.id + d + t.timestamp + d + t.speed + d
+                                + t.dist + d + t.bearing + d + t.rt.id + d
+                                + "\"" + t.location + "\"" + d + t.secsToDep + d
+                                + t.gc.getLon() + d + t.gc.getLat();
+                        break;
+                    case JSON:
+                        JSONObject js = new JSONObject();
+                        js.put("id", t.id);
+                        js.put("timestamp", t.timestamp);
+                        js.put("speed", t.speed);
+                        js.put("dist", t.dist);
+                        js.put("bearing", t.bearing);
+                        js.put("routeid", t.rt.id);
+                        js.put("location", t.location);
+                        js.put("secsToDep", t.secsToDep);
+                        js.put("lon", t.gc.getLon());
+                        js.put("lat", t.gc.getLat());
+                        line = js.toString();
+
+                }
+
                 switch (output) {
                     case STDOUT:
-                        System.out.println(line);                
+                        System.out.println(line);
                         break;
                     case TCP:
                         line += "\n";
                         try {
                             os.write(line.getBytes());
                             os.flush();
-                            if (numEventsSent % 1000 == 0) {
+                            if (numEventsSent % SHOWCNTEVERY == 0) {
                                 System.out.println("Total Events Sent: " + numEventsSent);
                             }
                         } catch (Exception e) {
@@ -74,18 +110,38 @@ public class SendEvents {
                         }
                         break;
                     case HTTP:
-                        
+                        postData += line + "\n";
+                        if (numEventsSent % HTTPBATCH == 0) {
+                            try {
+                                postLine(postData);
+                                postData = "";
+                            } catch (Exception e) {
+                                System.out.println("Post Failed");
+                            }
+                        }
                         break;
                     default:
                         System.out.println("Invalid Output");
                 }
-                
-                
+
             }
-            
-            
+
         }
 
+    }
+
+    private void postLine(String line) throws Exception {
+
+        StringEntity postingString = new StringEntity(line);
+
+        httpPost.setEntity(postingString);
+        httpPost.setHeader("Content-type", "plain/text");
+        //httpPost.setHeader("Content-type","application/json");
+        //NOTE: For JSON we are actually send lines of JSON not valid JSON.  I may turn them into JSON Array 
+
+        HttpResponse resp = httpClient.execute(httpPost);
+
+        httpPost.releaseConnection();
     }
 
     /*
@@ -101,53 +157,70 @@ public class SendEvents {
         - Number of events to send in batch / parallel 
         - For example if number is 10000 and batch is 1000 then start 10 threads and each thread send 1000 
         - Need to set Max Threads to prevent system errors (100?)
-     */    
-    
+     */
     /**
      * Timer contents
      *
      * Compile event(s) and send
      *
      */
-    private void send(String where, String what, String rate) {
+    private void send(String where, String what, String how) {
 
         String parts[];
         String parts2[];
-        
-        try {           
-            
+
+        try {
+
+            parts = how.trim().split(":");
+            int rate = Integer.parseInt(parts[0]);
+            if (rate < 1) {
+                rate = 1;
+            }
+
+            fmt = TXT;
+
+            if (parts.length > 1) {
+                String fmtRequested = parts[1];
+                if (fmtRequested.equalsIgnoreCase("JSON")) {
+                    fmt = JSON;
+                } else {
+                    fmt = TXT;
+                }
+            }
+
             numEventsSent = 0;
-            
+
             Routes rts;
             // Parse where            
             parts = where.trim().split(":");
-            
+
             if (parts[0].equalsIgnoreCase("-")) {
                 output = STDOUT;
             } else if (parts[0].equalsIgnoreCase("http")) {
                 output = HTTP;
+                httpClient = HttpClientBuilder.create().build();
+
+                httpPost = new HttpPost(parts[0]);
+
             } else {
                 output = TCP;
                 int port = 5565;
                 String server = parts[0];
-                
+
                 port = Integer.parseInt(parts[1]);
-                
-                
-                
+
                 Socket skt = new Socket(server, port);
                 this.os = skt.getOutputStream();
             }
-            
-            
+
             parts = what.trim().split(":");
             int numThg = 10;
-            
+
             // Parse what
             try {
                 int numRt = Integer.parseInt(parts[0]);
                 numThg = Integer.parseInt(parts[1]);
-                
+
                 if (parts.length == 2) {
                     rts = new Routes();
                     rts.createRandomRoutes(numRt, DURATIONSSECS);
@@ -158,59 +231,51 @@ public class SendEvents {
                     double lllat = Double.parseDouble(parts2[1]);
                     double urlon = Double.parseDouble(parts2[2]);
                     double urlat = Double.parseDouble(parts2[3]);
-                    
+
                     rts = new Routes(lllon, lllat, urlon, urlat);
-                    rts.createRandomRoutes(numRt, DURATIONSSECS);                    
-                    
+                    rts.createRandomRoutes(numRt, DURATIONSSECS);
+
                 }
-                
+
             } catch (NumberFormatException e) {
                 // The what is not not a number assume file
                 rts = new Routes();
                 rts.load(parts[0]);
-                
+
                 if (parts.length == 1) {
                     // Default to 10
                     numThg = 10;
                 } else {
                     numThg = Integer.parseInt(parts[1]);
                 }
-                
+
             }
-            
+
             // Create Things
             Random rnd = new Random();
             int i = 0;
             while (i < numThg) {
-                
+
                 int rndoffset = Math.abs(rnd.nextInt());
-                
+
                 Thing t = new Thing(i, rts.get(i), rndoffset);
                 things.add(t);
                 i++;
-                
+
             }
-            
-            
-                        
-            // Parse rate            
-            Integer r = Integer.parseInt(rate);
-            
+
 //            System.out.println("HERE");
 //            
 //            System.out.println(rts.rts);
-            
             timer = new Timer();
-            timer.schedule(new CheckCount(), 0, r * 1000);
+            timer.schedule(new CheckCount(), 0, rate * 1000);
 
-            
         } catch (Exception e) {
             e.printStackTrace();
-            
-        }
-        
-    }
 
+        }
+
+    }
 
     public static void main(String[] args) {
 
@@ -218,18 +283,19 @@ public class SendEvents {
 
         String where = "-";
         String what = "10:20";
-        String rate = "1";
+        String how = "1:txt";
 
         if (numArgs == 0) {
-            System.err.println("Usage: SendEvents <where> (<what> <rate>)");
+            System.err.println("Usage: SendEvents <where> (<what> <how>)");
             System.err.println("where: Dash '-' for stdout; server:port for tcp");
             System.err.println("what: numRandomRoute:numRandomThings:<bounding box> or filename:numberRandomThings");
             System.err.println("  optional bounding box: lowerleftlon,lowerleftlat,upperrightlon,upperrightlat");
             System.err.println("where: defaults to 10:20 for 10 routes and 20 things");
-            System.err.println("rate: Number of seconds between sending updates (defaults to 1)");
-            
+            System.err.println("rate: Number of seconds between sending updates (defaults to 1):<format>");
+            System.err.println("  optional format: json|txt (defaults to txt)");
+
         }
-        
+
         if (numArgs >= 1) {
             where = args[0];
         }
@@ -239,11 +305,11 @@ public class SendEvents {
         }
 
         if (numArgs >= 3) {
-            rate = args[2];
+            how = args[2];
         }
 
         SendEvents t = new SendEvents();
-        t.send(where, what, rate);
-        
+        t.send(where, what, how);
+
     }
 }

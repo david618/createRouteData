@@ -18,7 +18,7 @@ import java.util.TimerTask;
  *
  * @author david
  */
-public class sendEvents {
+public class SendEvents {
 
     final private int STDOUT = 0;
     final private int TCP = 1;
@@ -172,7 +172,9 @@ public class sendEvents {
             int i = 0;
             while (i < numThg) {
                 
-                Thing t = new Thing(i, rts.get(i), rnd.nextLong());
+                int rndoffset = Math.abs(rnd.nextInt());
+                
+                Thing t = new Thing(i, rts.get(i), rndoffset);
                 things.add(t);
                 i++;
                 
@@ -183,11 +185,16 @@ public class sendEvents {
             // Parse rate            
             Integer r = Integer.parseInt(rate);
             
+//            System.out.println("HERE");
+//            
+//            System.out.println(rts.rts);
+            
             timer = new Timer();
             timer.schedule(new CheckCount(), 0, r * 1000);
 
             
         } catch (Exception e) {
+            e.printStackTrace();
             
         }
         
@@ -198,7 +205,7 @@ public class sendEvents {
 
         int numArgs = args.length;
 
-        String where = "localhost:5565";
+        String where = "-";
         String what = "10:20";
         String rate = "1";
 
@@ -214,7 +221,7 @@ public class sendEvents {
             rate = args[2];
         }
 
-        sendEvents t = new sendEvents();
+        SendEvents t = new SendEvents();
         t.send(where, what, rate);
         
     }

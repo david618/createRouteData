@@ -320,7 +320,8 @@ public class Thing {
             Routes routes = new Routes();
             //t.createRandomRouteFile("routesThreeDay10.json", 10, 86400*3);
             //routes.load("routesOneDay100.json");
-            routes.load("routesOneDayUS10.json");
+            //routes.load("routesOneDayUS10.json");
+            routes.createRandomRoutes(10, 86400);
 
             // Pick Route
             // Should turn routes class into an iterable class
@@ -333,23 +334,23 @@ public class Thing {
             Thing t = new Thing(1, rt, 0);
             long n = System.currentTimeMillis();
 
-                    while (true) {
-            
-                        t.setPosition(System.currentTimeMillis() + 1400 * 1000);
-                        System.out.println(t);
-                        Thread.sleep(1000);
-                    }
-//            FileWriter fw = new FileWriter("temp.txt");
-//
-//
-//            for (int i = 0; i <= rt.lastSec * 2; i = i + 60) {
-//
-//                t.setPosition(n + i * 1000);
-//                fw.write(t + "\n");
-//                System.out.println(t);
-//
-//            }
-//            fw.close();
+//                    while (true) {
+//            
+//                        t.setPosition(System.currentTimeMillis() + 0 * 1000);
+//                        System.out.println(t.secsToDep + " " + t.dist);
+//                        Thread.sleep(1000);
+//                    }
+            FileWriter fw = new FileWriter("temp.txt");
+
+
+            for (int i = 0; i <= rt.lastSec * 2; i = i + 60) {
+
+                t.setPosition(n + i * 1000);
+                fw.write(t + "\n");
+                System.out.println(t);
+
+            }
+            fw.close();
 
         } catch (Exception e) {
             e.printStackTrace();

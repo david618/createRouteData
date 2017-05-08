@@ -20,6 +20,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -60,6 +61,8 @@ public class SendEvents {
         public void run() {
 
             String postData = ""; // Combine lines and send in groups
+            JSONArray jsonArray = new JSONArray();
+            JSONObject js = new JSONObject();
 
             for (Thing t : things) {
 
@@ -78,7 +81,7 @@ public class SendEvents {
                                 + t.gc.getLon() + d + t.gc.getLat();
                         break;
                     case JSON:
-                        JSONObject js = new JSONObject();
+                        js = new JSONObject();
                         js.put("id", t.id);
                         js.put("timestamp", t.timestamp);
                         js.put("speed", t.speed);
@@ -110,14 +113,27 @@ public class SendEvents {
                         }
                         break;
                     case HTTP:
-                        postData += line + "\n";
+                        if (fmt == TXT) {
+                            postData += line + "\n";
+                        } else if (fmt == JSON) {
+                            jsonArray.put(js);
+                        }
+
                         if (numEventsSent % HTTPBATCH == 0) {
                             try {
-                                postLine(postData);
+                                if (fmt == TXT) {
+                                    postLine(postData);
+                                } else if (fmt == JSON) {
+                                    postLine(jsonArray.toString());
+                                }
+
                                 postData = "";
+                                jsonArray = new JSONArray();
+                                js = new JSONObject();
                             } catch (Exception e) {
                                 System.out.println("Post Failed");
                             }
+
                         }
                         break;
                     default:
@@ -135,11 +151,15 @@ public class SendEvents {
         StringEntity postingString = new StringEntity(line);
 
         httpPost.setEntity(postingString);
-        httpPost.setHeader("Content-type", "plain/text");
-        //httpPost.setHeader("Content-type","application/json");
-        //NOTE: For JSON we are actually send lines of JSON not valid JSON.  I may turn them into JSON Array 
 
-        HttpResponse resp = httpClient.execute(httpPost);
+        if (fmt == TXT) {
+            httpPost.setHeader("Content-type", "plain/text");
+        } else if (fmt == JSON) {
+            httpPost.setHeader("Content-type", "application/json");
+
+            HttpResponse resp = httpClient.execute(httpPost);
+
+        }
 
         httpPost.releaseConnection();
     }
@@ -200,7 +220,7 @@ public class SendEvents {
                 output = HTTP;
                 httpClient = HttpClientBuilder.create().build();
 
-                httpPost = new HttpPost(parts[0]);
+                httpPost = new HttpPost(where);
 
             } else {
                 output = TCP;
@@ -294,22 +314,22 @@ public class SendEvents {
             System.err.println("rate: Number of seconds between sending updates (defaults to 1):<format>");
             System.err.println("  optional format: json|txt (defaults to txt)");
 
+        } else {
+
+            if (numArgs >= 1) {
+                where = args[0];
+            }
+
+            if (numArgs >= 2) {
+                what = args[1];
+            }
+
+            if (numArgs >= 3) {
+                how = args[2];
+            }
+
+            SendEvents t = new SendEvents();
+            t.send(where, what, how);
         }
-
-        if (numArgs >= 1) {
-            where = args[0];
-        }
-
-        if (numArgs >= 2) {
-            what = args[1];
-        }
-
-        if (numArgs >= 3) {
-            how = args[2];
-        }
-
-        SendEvents t = new SendEvents();
-        t.send(where, what, how);
-
     }
 }

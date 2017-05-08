@@ -22,6 +22,8 @@ import java.util.TimerTask;
  */
 public class SendEvents {
 
+    static long numEventsSent;
+    
     final private int STDOUT = 0;
     final private int TCP = 1;
     final private int HTTP = 2;
@@ -44,6 +46,8 @@ public class SendEvents {
             
             
             for (Thing t: things) {
+                
+                numEventsSent += 1;
                 t.setPosition(System.currentTimeMillis());
                 
                 String d = ",";
@@ -62,6 +66,9 @@ public class SendEvents {
                         try {
                             os.write(line.getBytes());
                             os.flush();
+                            if (numEventsSent % 1000 == 0) {
+                                System.out.println("Total Events Sent: " + numEventsSent);
+                            }
                         } catch (Exception e) {
                             //System.out.println("Failed to write to socket");
                         }
@@ -75,7 +82,7 @@ public class SendEvents {
                 
                 
             }
-            System.out.println();
+            
             
         }
 
@@ -108,6 +115,8 @@ public class SendEvents {
         String parts2[];
         
         try {           
+            
+            numEventsSent = 0;
             
             Routes rts;
             // Parse where            

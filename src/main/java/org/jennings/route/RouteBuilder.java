@@ -19,10 +19,20 @@ public class RouteBuilder {
     Airports arpts = new Airports();
     GreatCircle gc = new GreatCircle();
 
+    public RouteBuilder() {
+        arpts = new Airports();
+    }
+
+    
+    public RouteBuilder(double lllon, double lllat, double urlon, double urlat) {
+        arpts = new Airports(lllon, lllat, urlon, urlat);
+    }
+    
+    
     /**
      * Add a function that takes a set of locations and generates random speeds
      * 
-     * I want to have vehicles on the same places, but running at different speeds 
+     * I want to have vehicles on the same routes, but running at different speeds 
      * 
      *
      * 

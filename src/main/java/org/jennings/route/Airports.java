@@ -22,6 +22,11 @@ public class Airports {
     int numAirports;
 
     public Airports() {
+        this(-180,-90,180,90);
+    }
+    
+    
+    public Airports(double lllon, double lllat, double urlon, double urlat) {
 
         // Load Airports
         FileReader fr = null;
@@ -65,21 +70,21 @@ public class Airports {
                 String lat = vals.get(6);
                 String lon = vals.get(7);
 
-                Airport arpt = new Airport(id, name, Double.parseDouble(lat), Double.parseDouble(lon));
+                double dlon = Double.parseDouble(lon);
+                double dlat = Double.parseDouble(lat);                
+                
+                Airport arpt = new Airport(id, name, dlat, dlon);
 
                 // Country values have errors; Oryol Yuzhny Airport was listed in US actually it's in Russia
 //                if (cntry.equalsIgnoreCase("United States")) {
 //                    airports.add(arpt);
 //                }
-//                double dlon = Double.parseDouble(lon);
-//                double dlat = Double.parseDouble(lat);
-//
-//                if (dlon > -120 && dlon < -80) {
-//                    if (dlat > 20 && dlat < 60) {
-//                        airports.add(arpt);
-//                    }
-//                }
-                airports.add(arpt);
+                if (dlon > lllon && dlon < urlon) {
+                    if (dlat > lllat && dlat < urlat) {
+                        airports.add(arpt);
+                    }
+                }
+//                airports.add(arpt);
             }
 
             numAirports = airports.size();

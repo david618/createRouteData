@@ -10,13 +10,11 @@
  */
 package org.jennings.route;
 
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import org.jennings.geomtools.GeographicCoordinate;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -29,15 +27,27 @@ import org.json.JSONObject;
 public class Routes {
     
     ArrayList<Route> rts = new ArrayList<>();
+    RouteBuilder rb;
+
+    public Routes() {
+        rb = new RouteBuilder();
+    }
+    
+    public Routes(double lllon, double lllat, double urlon, double urlat) {
+        rb = new RouteBuilder(lllon, lllat, urlon, urlat);
+    }
+    
+      
     
     
     public Route get(int index) {
         
         Route rt = null;
-                
+            
+        int i = index % rts.size();
         
         try {
-            rt = rts.get(index);
+            rt = rts.get(i);
             
         } catch (Exception e) {
             
@@ -90,16 +100,31 @@ public class Routes {
         
     }
     
+    public void createRandomRoutes(int numRoutes, long durationSecs) {
+        try {
+            
+
+            
+
+            for (int i = 1; i <= numRoutes; i++) {
+                Route rt = rb.createRoute(durationSecs);
+                rt.setId(i);
+                rts.add(rt);
+            }
+
+            //System.out.println(jsonRts.toString(2));
+        } catch (Exception e) {
+
+        }
+    }    
+    
     public void createRandomRouteFile(String filename, int numRoutes, long durationSecs) {
         try {
-            ArrayList<Route> rts = new ArrayList<>();
-
-            RouteBuilder rb = new RouteBuilder();
 
             JSONArray jsonRts = new JSONArray();
 
             for (int i = 1; i <= numRoutes; i++) {
-                Route rt = rb.createRoute(durationSecs * 2);
+                Route rt = rb.createRoute(durationSecs);
                 rt.setId(i);
                 rts.add(rt);
                 jsonRts.put(rt.getRouteJSON());

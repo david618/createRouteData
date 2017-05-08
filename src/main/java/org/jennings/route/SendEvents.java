@@ -220,6 +220,16 @@ public class SendEvents {
         String what = "10:20";
         String rate = "1";
 
+        if (numArgs == 0) {
+            System.err.println("Usage: SendEvents <where> (<what> <rate>)");
+            System.err.println("where: Dash '-' for stdout; server:port for tcp");
+            System.err.println("what: numRandomRoute:numRandomThings:<bounding box> or filename:numberRandomThings");
+            System.err.println("  optional bounding box: lowerleftlon,lowerleftlat,upperrightlon,upperrightlat");
+            System.err.println("where: defaults to 10:20 for 10 routes and 20 things");
+            System.err.println("rate: Number of seconds between sending updates (defaults to 1)");
+            
+        }
+        
         if (numArgs >= 1) {
             where = args[0];
         }

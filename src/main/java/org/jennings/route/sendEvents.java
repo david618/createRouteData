@@ -7,6 +7,8 @@
  */
 package org.jennings.route;
 
+import java.io.OutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
@@ -28,14 +30,48 @@ public class sendEvents {
     int output;
 //    Routes rts;
     ArrayList<Thing> things = new ArrayList<>();
+    
+    
+    private OutputStream os = null;
 
     class CheckCount extends TimerTask {
 
         @Override
         public void run() {
+            
+            
+            
             for (Thing t: things) {
                 t.setPosition(System.currentTimeMillis());
-                System.out.println(t);                
+                
+                String d = ",";
+                
+                String line = t.id + d + t.timestamp + d + t.speed + d +
+                        t.dist + d + t.bearing + d + t.rt.id + d +
+                        "\"" + t.location + "\"" + d + t.secsToDep + d +
+                        t.gc.getLon() + d + t.gc.getLat();
+                
+                switch (output) {
+                    case STDOUT:
+                        System.out.println(line);                
+                        break;
+                    case TCP:
+                        line += "\n";
+                        try {
+                            os.write(line.getBytes());
+                            os.flush();
+                        } catch (Exception e) {
+                            //System.out.println("Failed to write to socket");
+                        }
+                        break;
+                    case HTTP:
+                        
+                        break;
+                    default:
+                        System.out.println("Invalid Output");
+                }
+                
+                
             }
             System.out.println();
             
@@ -66,11 +102,14 @@ public class sendEvents {
      */
     private void send(String where, String what, String rate) {
 
+        String parts[];
+        String parts2[];
+        
         try {           
             
             Routes rts;
             // Parse where            
-            String parts[] = where.trim().split(":");
+            parts = where.trim().split(":");
             
             if (parts[0].equalsIgnoreCase("-")) {
                 output = STDOUT;
@@ -78,6 +117,15 @@ public class sendEvents {
                 output = HTTP;
             } else {
                 output = TCP;
+                int port = 5565;
+                String server = parts[0];
+                
+                port = Integer.parseInt(parts[1]);
+                
+                
+                
+                Socket skt = new Socket(server, port);
+                this.os = skt.getOutputStream();
             }
             
             
@@ -94,7 +142,7 @@ public class sendEvents {
                     rts.createRandomRoutes(numRt, DURATIONSSECS);
                 } else {
                     // bbox provided
-                    String parts2[] = parts[1].split(",");
+                    parts2 = parts[1].split(",");
                     double lllon = Double.parseDouble(parts2[0]);
                     double lllat = Double.parseDouble(parts2[1]);
                     double urlon = Double.parseDouble(parts2[2]);
@@ -150,8 +198,8 @@ public class sendEvents {
 
         int numArgs = args.length;
 
-        String where = "-";
-        String what = "10:10";
+        String where = "localhost:5565";
+        String what = "10:20";
         String rate = "1";
 
         if (numArgs >= 1) {

@@ -302,8 +302,11 @@ public class SendEvents {
         int numArgs = args.length;
 
         String where = "-";
-        String what = "10:20";
-        String how = "1:txt";
+        String what = "routesTwoDay1000.json:20";
+        String how = "10:json";
+
+//        SendEvents t = new SendEvents();
+//        t.send(where, what, how);
 
         if (numArgs == 0) {
             System.err.println("Usage: SendEvents <where> (<what> <how>)");

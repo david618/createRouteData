@@ -1,5 +1,11 @@
 # createRouteData
-Java code to Create Simulated Aircraft Route Data and tracking of Aircraft on the Routes.  
+The goal was to create simulation data suitable for testing realtime applications. 
+ 
+The SendEvents application is the access point for using this application. 
+
+The 
+
+
 
 ## Code Overview
 
@@ -38,7 +44,20 @@ Point in a route. It includes an id, lon, lat, distance and bearing to next wayp
 
 ### SendEvents
 Create/Load a set of Things on Routes; then provide positions of those things at a specified rate.  
+<pre>
+Usage: SendEvents &lt;where> (&lt;what&gt; &lt;how&gt;)
 
+where: Dash '-' for stdout (default) |  server:port for tcp | url for http
+
+what: numRandomRoute:numRandomThings:&lt;bounding box&gt; or filename:numberRandomThings
+     bounding box format: lowerleftlon,lowerleftlat,upperrightlon,upperrightlat
+     default: 10:20
+
+when: rate:format
+     valid formats: json:txt
+     default: 10:txt 
+</pre>
+  
 #### Sample Outputs
 
 The following command creates 10 random routes and 20 random things; then outputs the thing events every 1 sec as text to standard output.

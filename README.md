@@ -1,5 +1,5 @@
 # createRouteData
-Java code to Create Simulated Aircraft Route Data and tracking of Aircraft on the Routes
+Java code to Create Simulated Aircraft Route Data and tracking of Aircraft on the Routes.  
 
 ## Code Overview
 
@@ -40,9 +40,11 @@ Point in a route. It includes an id, lon, lat, distance and bearing to next wayp
 Create/Load a set of Things on Routes; then provide positions of those things at a specified rate.  
 
 
+# Create SimFiles
 
+This was the first output I created from this application.  
 
-## Creating Random SimFiles 
+## Process
 - Started with routes and aiport data from open flights (http://openflights.org/data.html)
 - Used my GreatCircle Java code to create points along each route 
   - Code varies speed from 200 to 300 m/s and samples every 0.5 to 1.5 seconds

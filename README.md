@@ -3,9 +3,6 @@ The goal was to create simulation data suitable for testing realtime application
  
 The SendEvents application is the access point for using this application. 
 
-The 
-
-
 
 ## Code Overview
 

@@ -302,20 +302,25 @@ public class SendEvents {
         int numArgs = args.length;
 
         String where = "-";
-        String what = "routesTwoDay1000.json:20";
-        String how = "10:json";
+        //String what = "routesTwoDay1000.json:20";
+        String what = "10:20";
+        String how = "10:txt";
 
 //        SendEvents t = new SendEvents();
 //        t.send(where, what, how);
 
         if (numArgs == 0) {
             System.err.println("Usage: SendEvents <where> (<what> <how>)");
-            System.err.println("where: Dash '-' for stdout; server:port for tcp");
+            System.err.println();
+            System.err.println("where: Dash '-' for stdout (default) |  server:port for tcp | url for http");
+            System.err.println();
             System.err.println("what: numRandomRoute:numRandomThings:<bounding box> or filename:numberRandomThings");
-            System.err.println("  optional bounding box: lowerleftlon,lowerleftlat,upperrightlon,upperrightlat");
-            System.err.println("where: defaults to 10:20 for 10 routes and 20 things");
-            System.err.println("rate: Number of seconds between sending updates (defaults to 1):<format>");
-            System.err.println("  optional format: json|txt (defaults to txt)");
+            System.err.println("     bounding box format: lowerleftlon,lowerleftlat,upperrightlon,upperrightlat");
+            System.err.println("     default: 10:20");
+            System.err.println();
+            System.err.println("when: rate:format");
+            System.err.println("     valid formats: json:txt");
+            System.err.println("     default: 10:txt");
 
         } else {
 

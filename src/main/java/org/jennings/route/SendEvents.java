@@ -30,6 +30,7 @@ import org.json.JSONObject;
 public class SendEvents {
 
     static long numEventsSent;
+    static long numIterations;
 
     final private int STDOUT = 0;
     final private int TCP = 1;
@@ -45,6 +46,8 @@ public class SendEvents {
     Timer timer;
     int output;
     int fmt;
+    int iterations;
+    
 //    Routes rts;
     ArrayList<Thing> things = new ArrayList<>();
 
@@ -60,6 +63,8 @@ public class SendEvents {
         @Override
         public void run() {
 
+            numIterations += 1;
+            
             String postData = ""; // Combine lines and send in groups
             JSONArray jsonArray = new JSONArray();
             JSONObject js = new JSONObject();
@@ -75,7 +80,7 @@ public class SendEvents {
 
                 switch (fmt) {
                     case TXT:
-                        line = t.id + d + t.timestamp + d + t.speed + d
+                        line = t.id + d + t.timestamp + d + t.speed * 1000.0 + d
                                 + t.dist + d + t.bearing + d + t.rt.id + d
                                 + "\"" + t.location + "\"" + d + t.secsToDep + d
                                 + t.gc.getLon() + d + t.gc.getLat();
@@ -84,7 +89,7 @@ public class SendEvents {
                         js = new JSONObject();
                         js.put("id", t.id);
                         js.put("timestamp", t.timestamp);
-                        js.put("speed", t.speed);
+                        js.put("speed", t.speed * 1000.0);
                         js.put("dist", t.dist);
                         js.put("bearing", t.bearing);
                         js.put("routeid", t.rt.id);
@@ -139,6 +144,10 @@ public class SendEvents {
                     default:
                         System.out.println("Invalid Output");
                 }
+                
+                if (numIterations >= iterations) {
+                    timer.cancel();
+                }
 
             }
 
@@ -172,11 +181,10 @@ public class SendEvents {
         - numRoutes:numThings -> Create numRoutes and then create numThings using these routes 
         - numRoutes:numThings:lllon,lllat,urlon,urlat -> Same as before only limited routes to the bounding box
         - filename:numThings -> Load routes from filename and create numThings using these routes
-     rate: (default 1) 
-        - Number of seconds between sending updates; min 1; max (600?) batch: (default 1000) 
-        - Number of events to send in batch / parallel 
-        - For example if number is 10000 and batch is 1000 then start 10 threads and each thread send 1000 
-        - Need to set Max Threads to prevent system errors (100?)
+     how: (default 10:txt) 
+        - Number of seconds between sending updates
+        - Format of things (txt or json)
+        - Optional number of iterations (default sends until manually interupted)
      */
     /**
      * Timer contents
@@ -207,6 +215,16 @@ public class SendEvents {
                     fmt = TXT;
                 }
             }
+            
+            iterations = -1;
+            if (parts.length > 2) {
+                Integer iterationsReq = Integer.parseInt(parts[2]);
+                if (iterationsReq > 0) {
+                    iterations = iterationsReq;
+                }
+                
+            }
+            
 
             numEventsSent = 0;
 
@@ -318,9 +336,10 @@ public class SendEvents {
             System.err.println("     bounding box format: lowerleftlon,lowerleftlat,upperrightlon,upperrightlat");
             System.err.println("     default: 10:20");
             System.err.println();
-            System.err.println("when: rate:format");
+            System.err.println("how: seconds:format | seconds:format:num");
             System.err.println("     valid formats: json:txt");
-            System.err.println("     default: 10:txt");
+            System.err.println("     num: if specified is number of iterations; otherwise output continues until manually interupted (Ctrl-C)");
+            System.err.println("     default: 10:txt (output sample every 10 seconds in text format)");
 
         } else {
 

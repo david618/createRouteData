@@ -15,6 +15,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import org.apache.commons.math3.random.GaussianRandomGenerator;
+import org.apache.commons.math3.random.JDKRandomGenerator;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.stat.StatUtils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -151,7 +155,28 @@ public class Routes {
 
     public static void main(String[] args) throws Exception {
         Routes t = new Routes();
-        t.createRandomRouteFile("routesOneDayUS10.json", 100, 86400);
+        
+//        RandomGenerator rg = new JDKRandomGenerator();
+//        GaussianRandomGenerator grg = new GaussianRandomGenerator(rg);
+//        double[] sample = new double[10000];
+//        
+//        int n = 0;
+//        for (int i=0; i< 10000; i++) {
+//            double a = 250 + 50*grg.nextNormalizedDouble();
+//            if (a < 100) a += 100 + (100 -a);
+//           
+//            if (a > 400) n += 1;
+//            System.out.println(a);
+//            sample[i] = a;
+//            
+//        }
+//        System.out.println();
+//        System.out.println(n);
+//        System.out.println(StatUtils.mean(sample));
+//        System.out.println(Math.sqrt(StatUtils.variance(sample)));
+//        System.out.println(StatUtils.max(sample));
+//        System.out.println(StatUtils.min(sample));
+        t.createRandomRouteFile("routes10000_4day.json", 10000, 86400*4);
 //        t.load("routesOneDay100.json");
 //        Route rt = t.get(0);
 //        System.out.println(rt);

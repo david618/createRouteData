@@ -5,6 +5,9 @@ package org.jennings.route;
 
 import java.util.ArrayList;
 import java.util.Random;
+import org.apache.commons.math3.random.GaussianRandomGenerator;
+import org.apache.commons.math3.random.JDKRandomGenerator;
+import org.apache.commons.math3.random.RandomGenerator;
 import org.jennings.geomtools.DistanceBearing;
 import org.jennings.geomtools.GreatCircle;
 
@@ -13,43 +16,41 @@ import org.jennings.geomtools.GreatCircle;
  * @author david
  */
 public class RouteBuilder {
-    
+
     Airports arpts = new Airports();
     GreatCircle gc = new GreatCircle();
+
+    RandomGenerator rg = new JDKRandomGenerator();
+    GaussianRandomGenerator grg = new GaussianRandomGenerator(rg);
 
     public RouteBuilder() {
         arpts = new Airports();
     }
 
-    
     public RouteBuilder(double lllon, double lllat, double urlon, double urlat) {
         arpts = new Airports(lllon, lllat, urlon, urlat);
     }
-    
-    
+
     /**
      * Add a function that takes a set of locations and generates random speeds
-     * 
-     * I want to have vehicles on the same routes, but running at different speeds 
-     * 
      *
-     * 
+     * I want to have vehicles on the same routes, but running at different
+     * speeds
+     *
+     *
+     *
      */
-    
-    
     /**
      * This creates a route with random speeds
-     * 
+     *
      * @param durationSec
-     * @return 
+     * @return
      */
-    
     public Route createRoute(long durationSec) {
-        
+
         Route rt = null;
-        
+
         try {
-            
 
             ArrayList<Waypoint> wpts;
 
@@ -73,7 +74,11 @@ public class RouteBuilder {
 
                 long st = t + rnd.nextInt(600) + 300;  // Delay from 300 to 900 seconds
 
-                double speed = (Math.random() * 100 + 200) / 1000;  // speed from 100 to 300 m/s converted to km/s
+                //double speed = (Math.random() * 100 + 200) / 1000;  // speed from 100 to 300 m/s converted to km/s
+                // Speeds in Gaussian Distro around 250 +- 50; Reflect under 100 to over 100.  Mean will be 250 with stddev of about 50
+                double speed = 250 + 50 * grg.nextNormalizedDouble();  
+                if (speed < 100) speed += 100 + (100 - speed);
+                speed = speed / 1000;
 
                 long et = st + Math.round(distB.getDistance() / speed);
 
@@ -110,16 +115,14 @@ public class RouteBuilder {
 //            for (Waypoint wpt : wpts) {
 //                System.out.println(wpt.toString());
 //            }
-            
             rt = new Route(wpts);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         return rt;
 
     }
-    
-    
+
 }

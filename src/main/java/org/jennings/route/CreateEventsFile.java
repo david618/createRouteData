@@ -9,8 +9,8 @@
 package org.jennings.route;
 
 import java.io.BufferedWriter;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
 import org.json.JSONObject;
@@ -57,6 +57,16 @@ public class CreateEventsFile {
 
             Long numWritten = 0L;
             
+            
+            DecimalFormat df = new DecimalFormat();
+            df.setMaximumFractionDigits(2);
+            df.setGroupingUsed(false);
+            
+            DecimalFormat df5 = new DecimalFormat();
+            df5.setMaximumFractionDigits(5);
+            df5.setGroupingUsed(false);
+            
+            
             while (t < startTime + durSec * 1000) {
 
                 for (Thing thg : things) {
@@ -66,23 +76,29 @@ public class CreateEventsFile {
 
                     switch (format) {
                         case TXT:
-                            line = thg.id + d + thg.timestamp + d + thg.speed * 1000.0 + d
-                                    + thg.dist + d + thg.bearing + d + thg.rt.id + d
-                                    + "\"" + thg.location + "\"" + d + thg.secsToDep + d
-                                    + thg.gc.getLon() + d + thg.gc.getLat();
+                            line = thg.id + d 
+                                    + thg.timestamp + d 
+                                    + df.format(thg.speed * 1000.0) + d
+                                    + df.format(thg.dist) + d 
+                                    + df.format(thg.bearing) + d
+                                    + thg.rt.id + d
+                                    + "\"" + thg.location + "\"" + d
+                                    + thg.secsToDep + d
+                                    + df5.format(thg.gc.getLon()) + d 
+                                    + df5.format(thg.gc.getLat());
                             break;
                         case JSON:
                             JSONObject js = new JSONObject();
                             js.put("id", thg.id);
                             js.put("timestamp", thg.timestamp);
-                            js.put("speed", thg.speed * 1000.0);
-                            js.put("dist", thg.dist);
-                            js.put("bearing", thg.bearing);
+                            js.put("speed", df.format(thg.speed * 1000.0));
+                            js.put("dist", df.format(thg.dist));
+                            js.put("bearing", df.format(thg.bearing));
                             js.put("routeid", thg.rt.id);
                             js.put("location", thg.location);
                             js.put("secsToDep", thg.secsToDep);
-                            js.put("lon", thg.gc.getLon());
-                            js.put("lat", thg.gc.getLat());
+                            js.put("lon", df5.format(thg.gc.getLon()));
+                            js.put("lat", df5.format(thg.gc.getLat()));
                             line = js.toString();
 
                     }
@@ -120,13 +136,13 @@ public class CreateEventsFile {
 
         int numArgs = args.length;
         CreateEventsFile t = new CreateEventsFile();
-
+        
         String routeFile = "routes10000_4day.json";
         Integer numThg = 100000;
         String outputFolder = "/home/david/testfolder";
         Long startTime = System.currentTimeMillis();
         Integer stepSec = 60;
-        Integer durSec = 86400;
+        Integer durSec = 3600;
         Integer samplesPerFile = 1000000;
         Integer format = t.TXT;
 
